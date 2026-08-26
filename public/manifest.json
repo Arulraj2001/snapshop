@@ -1,0 +1,8 @@
+{
+  "name": "snapShop",
+  "short_name": "snapShop",
+  "theme_color": "#6040d1",
+  "background_color": "#f2f3fb",
+  "display": "standalone",
+  "start_url": "/"
+}

@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #6040d1;
+  --color-primary-dark: #655baa;
+  --color-app-bg: #f2f3fb;
+  --color-border-muted: #d7d5dc;
+  --color-text-muted: #bab0c1;
+}
+
+:root {
+  --color-bg: #f2f3fb;
+  --color-primary: #6040d1;
+  --color-primary-dark: #655baa;
+  --color-border: #d7d5dc;
+  --color-muted: #bab0c1;
+  --color-text: #000000;
+  --color-white: #ffffff;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbars on filter tab rows while keeping scroll functionality */
+.scrollbar-hide,
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Applied via inline style scrollbarWidth: 'none' for Tailwind v4 compat */
+*[style*="scrollbar-width: none"]::-webkit-scrollbar {
+  display: none;
+}
