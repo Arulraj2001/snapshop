@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import StoreLogo from './StoreLogo'
 
 interface HeroBannerProps {
   badgeText?: string
@@ -132,8 +133,9 @@ export default function HeroBanner({
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-white/15 text-[10px] text-white/80">
-              <span className="flex items-center gap-1 font-semibold">
-                <span>📦</span> Amazon Verified
+              <span className="flex items-center gap-1.5 font-semibold">
+                <StoreLogo logoUrl="/stores/amazon.png" name="Amazon" fallbackEmoji="📦" size={18} />
+                Amazon Verified
               </span>
               <span className="text-amber-300 font-bold">🔥 42 Clicks</span>
             </div>
@@ -164,15 +166,20 @@ export default function HeroBanner({
             </div>
           </div>
 
-          {/* Floating Store Pill Badges */}
-          <div className="absolute -top-3 left-6 rounded-full px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-xs font-bold text-white shadow-lg animate-pulse">
-            📦 Amazon
+          {/* Floating Store Pill Badges (Using Real Logos with Enlarged Icon Size) */}
+          <div className="absolute -top-3 left-4 rounded-full px-3.5 py-1.5 bg-white/25 backdrop-blur-md border border-white/35 text-xs font-bold text-white shadow-xl flex items-center gap-2 animate-pulse">
+            <StoreLogo logoUrl="/stores/amazon.png" name="Amazon" fallbackEmoji="📦" size={24} />
+            <span>Amazon</span>
           </div>
-          <div className="absolute top-24 -right-3 rounded-full px-3 py-1 bg-blue-500/30 backdrop-blur-md border border-white/30 text-xs font-bold text-white shadow-lg">
-            ⚡ Flipkart
+
+          <div className="absolute top-24 -right-4 rounded-full px-3.5 py-1.5 bg-blue-600/40 backdrop-blur-md border border-white/35 text-xs font-bold text-white shadow-xl flex items-center gap-2">
+            <StoreLogo logoUrl="/stores/flipkart.png" name="Flipkart" fallbackEmoji="⚡" size={24} />
+            <span>Flipkart</span>
           </div>
-          <div className="absolute -bottom-2 right-4 rounded-full px-3 py-1 bg-pink-500/30 backdrop-blur-md border border-white/30 text-xs font-bold text-white shadow-lg">
-            💄 Myntra
+
+          <div className="absolute -bottom-3 right-4 rounded-full px-3.5 py-1.5 bg-pink-600/40 backdrop-blur-md border border-white/35 text-xs font-bold text-white shadow-xl flex items-center gap-2">
+            <StoreLogo logoUrl="/stores/myntra.png" name="Myntra" fallbackEmoji="💄" size={24} />
+            <span>Myntra</span>
           </div>
         </div>
       </div>
