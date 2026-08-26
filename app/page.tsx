@@ -1,7 +1,5 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { createClient } from '@/lib/supabase/server'
-import { getConfigString } from '@/lib/config'
 import Header from '@/components/Header'
 import HeroBanner from '@/components/HeroBanner'
 import StoreTabs from '@/components/StoreTabs'
@@ -9,14 +7,21 @@ import CategoryTabs from '@/components/CategoryTabs'
 import ProductCard from '@/components/ProductCard'
 import EmptyState from '@/components/EmptyState'
 import Footer from '@/components/Footer'
+import SortSelect from '@/components/SortSelect'
 import ProductCardSkeleton from '@/components/skeletons/ProductCardSkeleton'
+import { createClient } from '@/lib/supabase/server'
+import { getConfigString } from '@/lib/config'
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+type SearchParams = Promise<{
+  store?: string | string[]
+  category?: string | string[]
+  q?: string | string[]
+  sort?: string | string[]
+}>
 
-function str(v: string | string[] | undefined): string | undefined {
-  if (typeof v === 'string') return v
-  if (Array.isArray(v)) return v[0]
-  return undefined
+function str(val: string | string[] | undefined): string | undefined {
+  if (!val) return undefined
+  return Array.isArray(val) ? val[0] : val
 }
 
 export async function generateMetadata({
@@ -56,11 +61,13 @@ export default async function HomePage({
   const store = str(sp.store)
   const category = str(sp.category)
   const q = str(sp.q)
+  const sort = str(sp.sort) || 'newest'
 
   const spRecord: Record<string, string> = {}
   if (store) spRecord.store = store
   if (category) spRecord.category = category
   if (q) spRecord.q = q
+  if (sort && sort !== 'newest') spRecord.sort = sort
 
   // Parallel fetch dynamic hero copy & branding settings
   const [
@@ -73,8 +80,8 @@ export default async function HomePage({
     heroStat2Lbl,
     heroStat3Val,
     heroStat3Lbl,
-    heroGradStart,
-    heroGradEnd,
+    heroGradientStart,
+    heroGradientEnd,
   ] = await Promise.all([
     getConfigString('hero_badge_text', "🔥 India's #1 Community Deal Hub"),
     getConfigString('hero_headline', 'Discover & Share Craziest Price Drops'),
@@ -86,7 +93,7 @@ export default async function HomePage({
     getConfigString('hero_stat_1_lbl', 'Verified Deals'),
     getConfigString('hero_stat_2_val', '⚡ Real-time'),
     getConfigString('hero_stat_2_lbl', 'Price Drops'),
-    getConfigString('hero_stat_3_val', '₹100 Bonus'),
+    getConfigString('hero_stat_3_val', '₹50 Bonus'),
     getConfigString('hero_stat_3_lbl', 'Per Referral'),
     getConfigString('site_hero_gradient_from', 'var(--site-hero-gradient-from, var(--site-primary-color, #6040d1))'),
     getConfigString('site_hero_gradient_to', 'var(--site-hero-gradient-to, var(--site-secondary-color, #9f2089))'),
@@ -96,7 +103,7 @@ export default async function HomePage({
     <div className="min-h-screen flex flex-col justify-between" style={{ backgroundColor: '#f2f3fb' }}>
       <div>
         {/* Header */}
-        <Suspense fallback={<HeaderSkeleton />}>
+        <Suspense fallback={<div className="h-14 bg-white border-b" />}>
           <Header />
         </Suspense>
 
@@ -113,8 +120,8 @@ export default async function HomePage({
               stat2Lbl={heroStat2Lbl}
               stat3Val={heroStat3Val}
               stat3Lbl={heroStat3Lbl}
-              gradientStart={heroGradStart}
-              gradientEnd={heroGradEnd}
+              gradientStart={heroGradientStart}
+              gradientEnd={heroGradientEnd}
             />
           )}
 
@@ -157,14 +164,23 @@ export default async function HomePage({
               </div>
             </aside>
 
-            {/* ── Right Section: Active Filters + Product Grid ─────────────── */}
+            {/* ── Right Section: Header Controls (Sort + Filters) + Product Grid ─────────────── */}
             <div className="flex-1 min-w-0 w-full">
+              {/* Section Header: Feed Title + Sort Dropdown */}
+              <div className="flex items-center justify-between mb-4 pb-2 border-b" style={{ borderColor: '#d7d5dc' }}>
+                <h2 className="text-sm font-extrabold uppercase tracking-wider text-black flex items-center gap-1.5">
+                  <span>🛍️</span> Live Deal Feed
+                </h2>
+                {/* Dynamic Sort Component */}
+                <SortSelect currentSort={sort} />
+              </div>
+
               {/* Active search or filter label */}
               {(q || store || category) && (
                 <div className="flex items-center justify-between mb-4 p-3 rounded-xl border" style={{ backgroundColor: '#ffffff', borderColor: '#d7d5dc' }}>
                   <p className="text-sm" style={{ color: '#bab0c1' }}>
                     Showing deals for{' '}
-                    <span style={{ color: '#6040d1', fontWeight: 600 }}>
+                    <span style={{ color: 'var(--site-primary-color, #6040d1)', fontWeight: 600 }}>
                       {[store, category, q ? `"${q}"` : null].filter(Boolean).join(' · ')}
                     </span>
                   </p>
@@ -178,8 +194,16 @@ export default async function HomePage({
               )}
 
               {/* Product Grid with Suspense */}
-              <Suspense fallback={<ProductGridSkeleton />}>
-                <ProductGrid store={store} category={category} q={q} />
+              <Suspense
+                fallback={
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <ProductCardSkeleton key={i} />
+                    ))}
+                  </div>
+                }
+              >
+                <ProductGrid store={store} category={category} q={q} sort={sort} />
               </Suspense>
             </div>
           </div>
@@ -195,26 +219,38 @@ async function ProductGrid({
   store,
   category,
   q,
+  sort = 'newest',
 }: {
   store?: string
   category?: string
   q?: string
+  sort?: string
 }) {
   const supabase = await createClient()
 
   let query = supabase
     .from('products')
     .select(
-      'id, title, images, offer_price, mrp, store, category, description, affiliate_link, click_count'
+      'id, title, images, offer_price, mrp, store, category, description, affiliate_link, click_count, created_at'
     )
     .eq('status', 'approved')
-    .order('created_at', { ascending: false })
+
+  // Apply sorting rules
+  if (sort === 'price_asc') {
+    query = query.order('offer_price', { ascending: true })
+  } else if (sort === 'price_desc') {
+    query = query.order('offer_price', { ascending: false })
+  } else if (sort === 'popular') {
+    query = query.order('click_count', { ascending: false })
+  } else {
+    query = query.order('created_at', { ascending: false })
+  }
 
   if (store) query = query.eq('store', store)
   if (category) query = query.eq('category', category)
   if (q) query = query.ilike('title', `%${q}%`)
 
-  const { data: products, error } = await query
+  const { data: productsData, error } = await query
 
   if (error) {
     return (
@@ -226,7 +262,18 @@ async function ProductGrid({
     )
   }
 
-  if (!products || products.length === 0) {
+  let products = productsData || []
+
+  // Highest Discount sorting
+  if (sort === 'discount') {
+    products = [...products].sort((a, b) => {
+      const discA = a.mrp && a.mrp > a.offer_price ? (a.mrp - a.offer_price) / a.mrp : 0
+      const discB = b.mrp && b.mrp > b.offer_price ? (b.mrp - b.offer_price) / b.mrp : 0
+      return discB - discA
+    })
+  }
+
+  if (products.length === 0) {
     return (
       <EmptyState
         icon={q ? '🔍' : '🛍️'}
@@ -249,8 +296,8 @@ async function ProductGrid({
           id={product.id}
           title={product.title}
           images={product.images ?? []}
-          offer_price={product.offer_price}
-          mrp={product.mrp}
+          offer_price={Number(product.offer_price)}
+          mrp={product.mrp ? Number(product.mrp) : null}
           store={product.store}
           category={product.category}
           description={product.description}
@@ -258,27 +305,5 @@ async function ProductGrid({
         />
       ))}
     </div>
-  )
-}
-
-function ProductGridSkeleton() {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <ProductCardSkeleton key={i} />
-      ))}
-    </div>
-  )
-}
-
-function HeaderSkeleton() {
-  return (
-    <div
-      className="h-14 w-full"
-      style={{
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #d7d5dc',
-      }}
-    />
   )
 }
