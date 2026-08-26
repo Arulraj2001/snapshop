@@ -55,10 +55,23 @@ export async function POST(request: Request) {
       .eq('gateway_order_id', razorpay_order_id)
       .eq('user_id', user.id)
 
-    // 5. Unlock unlimited posting for this user
+    // 5. Unlock unlimited posting + credit Welcome Cashback Bonus to paying user
+    const welcomeBonus = await getConfigNumber('welcome_bonus_amount', 50)
+
+    const { data: payingUser } = await serviceClient
+      .from('users')
+      .select('wallet_balance')
+      .eq('id', user.id)
+      .single()
+
+    const currentBalance = Number(payingUser?.wallet_balance ?? 0)
+
     await serviceClient
       .from('users')
-      .update({ has_paid_platform_fee: true })
+      .update({
+        has_paid_platform_fee: true,
+        wallet_balance: currentBalance + welcomeBonus,
+      })
       .eq('id', user.id)
 
     // 6. Credit referral commission to referrer (if applicable)
@@ -88,8 +101,8 @@ export async function creditReferralIfEligible(paidUserId: string) {
 
     if (!referral) return // No pending referral — nothing to do
 
-    // Get commission amount from platform config
-    const commission = await getConfigNumber('referral_commission')
+    // Get commission amount from platform config (default 50)
+    const commission = await getConfigNumber('referral_commission', 50)
 
     // Mark referral as paid
     await serviceClient

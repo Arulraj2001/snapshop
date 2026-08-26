@@ -6,9 +6,9 @@ import { createClient } from '@/lib/supabase/server'
 export async function generateMetadata(): Promise<Metadata> {
   const siteConfig = await getSiteConfig()
   return {
-    title: `Refer & Earn ₹100 — ${siteConfig.siteName}`,
+    title: `Refer & Earn ₹${siteConfig.commissionAmount} — ${siteConfig.siteName}`,
     description:
-      'Invite deal lovers to snapShop and earn ₹100 for every friend who joins and unlocks unlimited posting. Instant UPI withdrawals.',
+      `Invite deal lovers to ${siteConfig.siteName} and earn ₹${siteConfig.commissionAmount} for every friend who joins and unlocks unlimited posting. Plus get ₹${siteConfig.welcomeBonusAmount} welcome cashback.`,
   }
 }
 
@@ -21,6 +21,9 @@ export default async function ReferAndEarnPage() {
 
   const primary = siteConfig.primaryColor || '#6040d1'
   const secondary = siteConfig.secondaryColor || '#9f2089'
+  const commission = siteConfig.commissionAmount || 50
+  const welcomeBonus = siteConfig.welcomeBonusAmount || 50
+  const platformFee = siteConfig.platformFeeAmount || 249
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-12 py-4">
@@ -36,11 +39,11 @@ export default async function ReferAndEarnPage() {
         </span>
 
         <h1 className="text-3xl sm:text-5xl font-black leading-tight max-w-2xl">
-          Refer Friends &amp; Earn ₹100 Every Time!
+          Refer Friends &amp; Earn ₹{commission} Every Time!
         </h1>
 
         <p className="text-sm sm:text-base opacity-90 max-w-xl leading-relaxed">
-          Share your referral link with deal hunters, friends, and social groups. Earn ₹100 cash directly in your wallet for every verified member.
+          Share your referral link with deal hunters, friends, and social groups. Earn ₹{commission} cash directly in your wallet for every verified member. Plus get ₹{welcomeBonus} welcome cashback on your upgrade!
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full sm:w-auto">
@@ -67,7 +70,7 @@ export default async function ReferAndEarnPage() {
               step: '01',
               icon: '🔓',
               title: 'Unlock Your Link',
-              desc: 'Pay the one-time ₹249 platform fee to unlock unlimited deal posting and activate your referral link.',
+              desc: `Pay the one-time ₹${platformFee} platform fee to unlock unlimited deal posting, get ₹${welcomeBonus} cashback in your wallet, and activate your referral link.`,
             },
             {
               step: '02',
@@ -79,13 +82,13 @@ export default async function ReferAndEarnPage() {
               step: '03',
               icon: '⚡',
               title: 'Friend Joins & Pays',
-              desc: 'Your friend registers via your link and pays their ₹249 platform fee to unlock unlimited deal posts.',
+              desc: `Your friend registers via your link and pays their ₹${platformFee} platform fee (they get ₹${welcomeBonus} cashback in their wallet too!).`,
             },
             {
               step: '04',
               icon: '💰',
-              title: 'Get Paid ₹100 Instant',
-              desc: '₹100 is automatically credited to your wallet. Request instant payout to your UPI ID once you hit ₹200!',
+              title: `Get Paid ₹${commission} Instant`,
+              desc: `₹${commission} is automatically credited to your wallet. Request instant payout to your UPI ID once you hit minimum threshold!`,
             },
           ].map((s) => (
             <div
@@ -115,10 +118,10 @@ export default async function ReferAndEarnPage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           {[
-            { friends: '5 Friends', earnings: '₹500' },
-            { friends: '10 Friends', earnings: '₹1,000' },
-            { friends: '50 Friends', earnings: '₹5,000' },
-            { friends: '100 Friends', earnings: '₹10,000' },
+            { friends: '5 Friends', earnings: `₹${(5 * commission).toLocaleString('en-IN')}` },
+            { friends: '10 Friends', earnings: `₹${(10 * commission).toLocaleString('en-IN')}` },
+            { friends: '50 Friends', earnings: `₹${(50 * commission).toLocaleString('en-IN')}` },
+            { friends: '100 Friends', earnings: `₹${(100 * commission).toLocaleString('en-IN')}` },
           ].map((item) => (
             <div key={item.friends} className="p-4 rounded-2xl bg-slate-50 border" style={{ borderColor: '#f2f3fb' }}>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{item.friends}</p>
@@ -138,23 +141,23 @@ export default async function ReferAndEarnPage() {
 
         <div className="flex flex-col gap-6 text-sm">
           <div>
-            <h3 className="font-bold text-black mb-1">When is my ₹100 referral commission credited?</h3>
+            <h3 className="font-bold text-black mb-1">When is my ₹{commission} referral commission credited?</h3>
             <p className="text-gray-500 text-xs leading-relaxed">
-              Your referral status changes from 🟡 Pending to 🟢 Paid the instant your referred friend completes their ₹249 platform fee payment. ₹100 is credited automatically to your wallet.
+              Your referral status changes from 🟡 Pending to 🟢 Paid the instant your referred friend completes their ₹{platformFee} platform fee payment. ₹{commission} is credited automatically to your wallet.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-bold text-black mb-1">Do I get cashback when I pay the platform fee?</h3>
+            <p className="text-gray-500 text-xs leading-relaxed">
+              Yes! When you complete your ₹{platformFee} platform fee payment, ₹{welcomeBonus} is instantly credited back to your own wallet balance as a welcome cashback bonus.
             </p>
           </div>
 
           <div>
             <h3 className="font-bold text-black mb-1">How do I withdraw my earnings?</h3>
             <p className="text-gray-500 text-xs leading-relaxed">
-              Once your wallet balance reaches ₹200 (minimum threshold), go to your Dashboard, enter your UPI ID (e.g. `yourname@upi`), and click &quot;Request Withdrawal&quot;. Admin processes payouts within 24 hours.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-black mb-1">Can free tier users refer and earn?</h3>
-            <p className="text-gray-500 text-xs leading-relaxed">
-              To prevent spam and protect member earnings, referral links unlock after paying the one-time ₹249 platform fee.
+              Once your wallet balance reaches the minimum withdrawal threshold, go to your Dashboard, enter your UPI ID (e.g. `yourname@upi`), and click &quot;Request Withdrawal&quot;. Admin processes payouts within 24 hours.
             </p>
           </div>
         </div>

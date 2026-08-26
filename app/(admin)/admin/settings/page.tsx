@@ -16,6 +16,7 @@ const POSTING_RULES: { label: string; key: string; type: 'number' | 'boolean' | 
 
 const REFERRAL_CONFIG: { label: string; key: string; type: 'number' | 'boolean' | 'text' | 'color' }[] = [
   { label: 'Referral Commission ₹', key: 'referral_commission', type: 'number' },
+  { label: 'New User Welcome Cashback ₹', key: 'welcome_bonus_amount', type: 'number' },
   { label: 'Minimum Withdrawal ₹', key: 'min_withdrawal_amount', type: 'number' },
 ]
 
@@ -42,6 +43,7 @@ const KEY_LABELS: Record<string, string> = {
   max_posts_per_day: 'Max Posts Per Day',
   new_posts_require_approval: 'Require Admin Approval',
   referral_commission: 'Referral Commission',
+  welcome_bonus_amount: 'New User Welcome Cashback',
   min_withdrawal_amount: 'Minimum Withdrawal',
   hero_badge_text: 'Hero Badge Text',
   hero_headline: 'Hero Headline',

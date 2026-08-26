@@ -83,10 +83,13 @@ export interface SiteConfig {
   bgColor: string
   heroGradientFrom: string
   heroGradientTo: string
+  commissionAmount: number
+  welcomeBonusAmount: number
+  platformFeeAmount: number
 }
 
 /**
- * Convenience helper to fetch all global site branding & theme colors.
+ * Convenience helper to fetch all global site branding, platform parameters & theme colors.
  */
 export async function getSiteConfig(): Promise<SiteConfig> {
   const [
@@ -100,6 +103,9 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     bgColor,
     heroGradientFrom,
     heroGradientTo,
+    commissionAmount,
+    welcomeBonusAmount,
+    platformFeeAmount,
   ] = await Promise.all([
     getConfigString('site_name', 'snapShop'),
     getConfigString('site_tagline', "India's premier community deal platform. Discover verified price drops on Amazon, Flipkart, Myntra & Meesho and earn rewards for sharing."),
@@ -111,6 +117,9 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     getConfigString('site_bg_color', '#f2f3fb'),
     getConfigString('site_hero_gradient_from', '#6040d1'),
     getConfigString('site_hero_gradient_to', '#9f2089'),
+    getConfigNumber('referral_commission', 50),
+    getConfigNumber('welcome_bonus_amount', 50),
+    getConfigNumber('platform_fee_amount', 249),
   ])
 
   return {
@@ -124,5 +133,8 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     bgColor,
     heroGradientFrom,
     heroGradientTo,
+    commissionAmount,
+    welcomeBonusAmount,
+    platformFeeAmount,
   }
 }

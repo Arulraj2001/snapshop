@@ -83,10 +83,24 @@ export async function POST(request: Request) {
       })
       .eq('id', paymentRow.id)
 
-    // 6. Unlock posting for user
+    // 6. Unlock posting for user + credit welcome bonus
+    const { getConfigNumber } = await import('@/lib/config')
+    const welcomeBonus = await getConfigNumber('welcome_bonus_amount', 50)
+
+    const { data: payingUser } = await serviceClient
+      .from('users')
+      .select('wallet_balance')
+      .eq('id', userId)
+      .single()
+
+    const currentBalance = Number(payingUser?.wallet_balance ?? 0)
+
     await serviceClient
       .from('users')
-      .update({ has_paid_platform_fee: true })
+      .update({
+        has_paid_platform_fee: true,
+        wallet_balance: currentBalance + welcomeBonus,
+      })
       .eq('id', userId)
 
     // 7. Credit referral commission if applicable (idempotent)

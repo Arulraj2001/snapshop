@@ -225,7 +225,7 @@ export default function Dashboard({
                   style={{ backgroundColor: '#6040d1' }}
                   onClick={(e) => { e.stopPropagation(); setShowPaywall(true) }}
                 >
-                  Upgrade — ₹{commissionAmount > 0 ? 249 : 249} Unlock Unlimited
+                  Upgrade — ₹{platformFee} Unlock Unlimited
                 </button>
               </div>
             )}
@@ -266,7 +266,7 @@ export default function Dashboard({
                     className="mt-4 w-full py-2.5 rounded-xl text-sm font-bold text-white cursor-pointer transition-opacity hover:opacity-90"
                     style={{ backgroundColor: '#6040d1' }}
                   >
-                    🚀 Unlock — Pay ₹249 One-Time Fee
+                    🚀 Unlock — Pay ₹{platformFee} One-Time Fee
                   </button>
                 </div>
               )}

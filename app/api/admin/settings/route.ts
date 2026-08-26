@@ -6,6 +6,7 @@ const ALLOWED_KEYS = [
   'free_post_limit',
   'platform_fee_amount',
   'referral_commission',
+  'welcome_bonus_amount',
   'min_withdrawal_amount',
   'max_posts_per_day',
   'new_posts_require_approval',

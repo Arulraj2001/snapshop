@@ -24,7 +24,7 @@ export default function HeroBanner({
   stat1Lbl = 'Verified Deals',
   stat2Val = '⚡ Real-time',
   stat2Lbl = 'Price Drops',
-  stat3Val = '₹100 Bonus',
+  stat3Val = '₹50 Bonus',
   stat3Lbl = 'Per Referral',
   gradientStart = 'var(--site-hero-gradient-from, var(--site-primary-color, #6040d1))',
   gradientEnd = 'var(--site-hero-gradient-to, var(--site-secondary-color, #9f2089))',
