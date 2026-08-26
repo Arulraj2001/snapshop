@@ -161,6 +161,18 @@ export default function LoginPage() {
         <Link href="/login/otp" className="text-sm" style={{ color: '#6040d1' }}>
           Sign in with OTP instead
         </Link>
+
+        {/* Back to Home Button */}
+        <div className="pt-3 border-t mt-2 flex justify-center" style={{ borderColor: '#f2f3fb' }}>
+          <Link
+            href="/"
+            id="login-back-home-btn"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+            style={{ color: '#bab0c1', textDecoration: 'none' }}
+          >
+            ← Back to Home
+          </Link>
+        </div>
       </div>
     </div>
   )

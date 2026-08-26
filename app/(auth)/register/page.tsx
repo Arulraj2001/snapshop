@@ -269,13 +269,25 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <div className="mt-5 text-center text-sm">
+      <div className="mt-5 text-center text-sm flex flex-col gap-2">
         <p style={{ color: '#bab0c1' }}>
           Already have an account?{' '}
           <Link href="/login" className="font-medium" style={{ color: '#6040d1' }}>
             Sign in
           </Link>
         </p>
+
+        {/* Back to Home Button */}
+        <div className="pt-3 border-t mt-2 flex justify-center" style={{ borderColor: '#f2f3fb' }}>
+          <Link
+            href="/"
+            id="register-back-home-btn"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+            style={{ color: '#bab0c1', textDecoration: 'none' }}
+          >
+            ← Back to Home
+          </Link>
+        </div>
       </div>
     </div>
   )
