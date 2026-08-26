@@ -75,8 +75,8 @@ export default function Footer({
           <Link href="/post" className="text-sm text-gray-600 hover:text-[#6040d1] transition-colors" style={{ textDecoration: 'none' }}>
             + Post a Deal
           </Link>
-          <Link href="/dashboard" className="text-sm text-gray-600 hover:text-[#6040d1] transition-colors" style={{ textDecoration: 'none' }}>
-            Refer &amp; Earn
+          <Link href="/refer-and-earn" className="text-sm text-gray-600 hover:text-[#6040d1] transition-colors" style={{ textDecoration: 'none' }}>
+            Refer &amp; Earn ₹100
           </Link>
           <Link href="/dashboard" className="text-sm text-gray-600 hover:text-[#6040d1] transition-colors" style={{ textDecoration: 'none' }}>
             User Dashboard

@@ -99,7 +99,7 @@ export default function Header({
       <div className="flex items-center gap-1.5 sm:hidden">
         {/* Mobile Refer & Earn Button */}
         <Link
-          href={user ? '/dashboard' : '/register'}
+          href="/refer-and-earn"
           id="header-refer-mobile"
           className="px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 border shadow-xs"
           style={{
@@ -139,7 +139,7 @@ export default function Header({
       <div className="hidden sm:flex items-center gap-2.5 shrink-0">
         {/* Refer & Earn Button (Always Visible) */}
         <Link
-          href={user ? '/dashboard' : '/register'}
+          href="/refer-and-earn"
           id="header-refer-btn"
           className="text-xs sm:text-sm rounded-lg px-3 py-1.5 font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs border hover:scale-102"
           style={{
