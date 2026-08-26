@@ -8,15 +8,19 @@ import ProductCard from '@/components/ProductCard'
 import EmptyState from '@/components/EmptyState'
 import Footer from '@/components/Footer'
 import SortSelect from '@/components/SortSelect'
+import Pagination from '@/components/Pagination'
 import ProductCardSkeleton from '@/components/skeletons/ProductCardSkeleton'
 import { createClient } from '@/lib/supabase/server'
 import { getConfigString } from '@/lib/config'
+
+const ITEMS_PER_PAGE = 12
 
 type SearchParams = Promise<{
   store?: string | string[]
   category?: string | string[]
   q?: string | string[]
   sort?: string | string[]
+  page?: string | string[]
 }>
 
 function str(val: string | string[] | undefined): string | undefined {
@@ -62,6 +66,7 @@ export default async function HomePage({
   const category = str(sp.category)
   const q = str(sp.q)
   const sort = str(sp.sort) || 'newest'
+  const page = Math.max(1, parseInt(str(sp.page) || '1', 10) || 1)
 
   const spRecord: Record<string, string> = {}
   if (store) spRecord.store = store
@@ -203,7 +208,7 @@ export default async function HomePage({
                   </div>
                 }
               >
-                <ProductGrid store={store} category={category} q={q} sort={sort} />
+                <ProductGrid store={store} category={category} q={q} sort={sort} page={page} />
               </Suspense>
             </div>
           </div>
@@ -220,37 +225,40 @@ async function ProductGrid({
   category,
   q,
   sort = 'newest',
+  page = 1,
 }: {
   store?: string
   category?: string
   q?: string
   sort?: string
+  page?: number
 }) {
   const supabase = await createClient()
 
   let query = supabase
     .from('products')
     .select(
-      'id, title, images, offer_price, mrp, store, category, description, affiliate_link, click_count, created_at'
+      'id, title, images, offer_price, mrp, store, category, description, affiliate_link, click_count, created_at',
+      { count: 'exact' }
     )
     .eq('status', 'approved')
 
-  // Apply sorting rules
+  if (store) query = query.eq('store', store)
+  if (category) query = query.eq('category', category)
+  if (q) query = query.ilike('title', `%${q}%`)
+
+  // Apply DB sorting rules (except custom in-memory discount sort)
   if (sort === 'price_asc') {
     query = query.order('offer_price', { ascending: true })
   } else if (sort === 'price_desc') {
     query = query.order('offer_price', { ascending: false })
   } else if (sort === 'popular') {
     query = query.order('click_count', { ascending: false })
-  } else {
+  } else if (sort !== 'discount') {
     query = query.order('created_at', { ascending: false })
   }
 
-  if (store) query = query.eq('store', store)
-  if (category) query = query.eq('category', category)
-  if (q) query = query.ilike('title', `%${q}%`)
-
-  const { data: productsData, error } = await query
+  const { data: productsData, count, error } = await query
 
   if (error) {
     return (
@@ -264,7 +272,7 @@ async function ProductGrid({
 
   let products = productsData || []
 
-  // Highest Discount sorting
+  // In-memory Highest Discount sorting
   if (sort === 'discount') {
     products = [...products].sort((a, b) => {
       const discA = a.mrp && a.mrp > a.offer_price ? (a.mrp - a.offer_price) / a.mrp : 0
@@ -273,7 +281,14 @@ async function ProductGrid({
     })
   }
 
-  if (products.length === 0) {
+  const totalItems = count ?? products.length
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+
+  // Paginate sliced items for current page
+  const fromIndex = (page - 1) * ITEMS_PER_PAGE
+  const paginatedProducts = products.slice(fromIndex, fromIndex + ITEMS_PER_PAGE)
+
+  if (paginatedProducts.length === 0) {
     return (
       <EmptyState
         icon={q ? '🔍' : '🛍️'}
@@ -289,21 +304,31 @@ async function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-      {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          id={product.id}
-          title={product.title}
-          images={product.images ?? []}
-          offer_price={Number(product.offer_price)}
-          mrp={product.mrp ? Number(product.mrp) : null}
-          store={product.store}
-          category={product.category}
-          description={product.description}
-          affiliate_link={product.affiliate_link}
-        />
-      ))}
+    <div>
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {paginatedProducts.map((product) => (
+          <ProductCard
+            key={product.id}
+            id={product.id}
+            title={product.title}
+            images={product.images ?? []}
+            offer_price={Number(product.offer_price)}
+            mrp={product.mrp ? Number(product.mrp) : null}
+            store={product.store}
+            category={product.category}
+            description={product.description}
+            affiliate_link={product.affiliate_link}
+          />
+        ))}
+      </div>
+
+      {/* Pagination Controls */}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
     </div>
   )
 }
