@@ -54,3 +54,30 @@ body {
 *[style*="scrollbar-width: none"]::-webkit-scrollbar {
   display: none;
 }
+
+/* Hero Floating Animations */
+@keyframes heroFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes heroFloatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(10px) rotate(-1.5deg);
+  }
+}
+
+.animate-hero-float {
+  animation: heroFloat 4s ease-in-out infinite;
+}
+
+.animate-hero-float-slow {
+  animation: heroFloatSlow 5.5s ease-in-out infinite;
+}
