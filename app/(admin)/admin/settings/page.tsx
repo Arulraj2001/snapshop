@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import ConfigRow from '@/components/admin/ConfigRow'
+import HeroSettingsCustomizer from '@/components/admin/HeroSettingsCustomizer'
 
 export const metadata: Metadata = {
   title: 'snapShop Admin — Settings',
@@ -20,23 +21,6 @@ const REFERRAL_CONFIG: { label: string; key: string; type: 'number' | 'boolean' 
   { label: 'Minimum Withdrawal ₹', key: 'min_withdrawal_amount', type: 'number' },
 ]
 
-const HERO_CONFIG: { label: string; key: string; type: 'number' | 'boolean' | 'text' | 'color' }[] = [
-  { label: 'Hero Top Badge Text', key: 'hero_badge_text', type: 'text' },
-  { label: 'Hero Headline', key: 'hero_headline', type: 'text' },
-  { label: 'Hero Subtitle Description', key: 'hero_subtitle', type: 'text' },
-  { label: 'Stat 1 Value', key: 'hero_stat_1_val', type: 'text' },
-  { label: 'Stat 1 Label', key: 'hero_stat_1_lbl', type: 'text' },
-  { label: 'Stat 2 Value', key: 'hero_stat_2_val', type: 'text' },
-  { label: 'Stat 2 Label', key: 'hero_stat_2_lbl', type: 'text' },
-  { label: 'Stat 3 Value', key: 'hero_stat_3_val', type: 'text' },
-  { label: 'Stat 3 Label', key: 'hero_stat_3_lbl', type: 'text' },
-]
-
-const BRANDING_CONFIG: { label: string; key: string; type: 'number' | 'boolean' | 'text' | 'color' }[] = [
-  { label: 'Hero Gradient Start Color', key: 'site_hero_gradient_start', type: 'color' },
-  { label: 'Hero Gradient End Color', key: 'site_hero_gradient_end', type: 'color' },
-]
-
 const KEY_LABELS: Record<string, string> = {
   free_post_limit: 'Free Posts Per User',
   platform_fee_amount: 'Platform Fee',
@@ -54,6 +38,8 @@ const KEY_LABELS: Record<string, string> = {
   hero_stat_2_lbl: 'Stat 2 Label',
   hero_stat_3_val: 'Stat 3 Value',
   hero_stat_3_lbl: 'Stat 3 Label',
+  site_hero_gradient_from: 'Hero Gradient Start',
+  site_hero_gradient_to: 'Hero Gradient End',
   site_hero_gradient_start: 'Hero Gradient Start',
   site_hero_gradient_end: 'Hero Gradient End',
 }
@@ -112,7 +98,7 @@ export default async function AdminSettingsPage() {
   const auditLog = (configs ?? []).filter((c) => c.updated_at)
 
   return (
-    <div className="max-w-4xl flex flex-col gap-6">
+    <div className="max-w-6xl flex flex-col gap-6">
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-extrabold text-black">Platform Settings ⚙️</h1>
@@ -121,34 +107,16 @@ export default async function AdminSettingsPage() {
         </p>
       </div>
 
-      {/* 1. Hero Banner Content */}
-      <Section title="Hero Banner & Copy Settings" description="Customize homepage banner badge, headline, subhead description, and the 3 stat indicators.">
-        {HERO_CONFIG.map((row) => (
-          <ConfigRow
-            key={row.key}
-            label={row.label}
-            configKey={row.key}
-            type={row.type}
-            initialValue={configMap[row.key] ?? ''}
-          />
-        ))}
+      {/* 1. Hero Banner Content & Live Preview */}
+      <Section
+        title="Hero Banner &amp; Copy Settings (Live Preview)"
+        description="Customize homepage banner badge, headline, subtitle description, stat indicators, and background gradient with real-time preview."
+      >
+        <HeroSettingsCustomizer initialConfig={configMap} />
       </Section>
 
-      {/* 2. Hero Banner Colors */}
-      <Section title="Hero Gradient Theme Colors" description="Select the background gradient colors for the homepage hero card.">
-        {BRANDING_CONFIG.map((row) => (
-          <ConfigRow
-            key={row.key}
-            label={row.label}
-            configKey={row.key}
-            type={row.type}
-            initialValue={configMap[row.key] ?? ''}
-          />
-        ))}
-      </Section>
-
-      {/* 3. Posting Rules */}
-      <Section title="Posting Rules & Limits">
+      {/* 2. Posting Rules */}
+      <Section title="Posting Rules &amp; Limits">
         {POSTING_RULES.map((row) => (
           <ConfigRow
             key={row.key}
@@ -160,8 +128,8 @@ export default async function AdminSettingsPage() {
         ))}
       </Section>
 
-      {/* 4. Referral & Withdrawals */}
-      <Section title="Referral & Withdrawal Controls">
+      {/* 3. Referral & Withdrawals */}
+      <Section title="Referral &amp; Withdrawal Controls">
         {REFERRAL_CONFIG.map((row) => (
           <ConfigRow
             key={row.key}
