@@ -86,6 +86,7 @@ export interface SiteConfig {
   commissionAmount: number
   welcomeBonusAmount: number
   platformFeeAmount: number
+  itemsPerPage: number
 }
 
 /**
@@ -106,6 +107,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     commissionAmount,
     welcomeBonusAmount,
     platformFeeAmount,
+    itemsPerPage,
   ] = await Promise.all([
     getConfigString('site_name', 'snapShop'),
     getConfigString('site_tagline', "India's premier community deal platform. Discover verified price drops on Amazon, Flipkart, Myntra & Meesho and earn rewards for sharing."),
@@ -120,6 +122,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     getConfigNumber('referral_commission', 50),
     getConfigNumber('welcome_bonus_amount', 50),
     getConfigNumber('platform_fee_amount', 249),
+    getConfigNumber('items_per_page', 12),
   ])
 
   return {
@@ -136,5 +139,6 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     commissionAmount,
     welcomeBonusAmount,
     platformFeeAmount,
+    itemsPerPage,
   }
 }

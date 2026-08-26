@@ -4,6 +4,7 @@ import { configCache } from '@/lib/config'
 
 const ALLOWED_KEYS = [
   'free_post_limit',
+  'items_per_page',
   'platform_fee_amount',
   'referral_commission',
   'welcome_bonus_amount',

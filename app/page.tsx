@@ -11,9 +11,7 @@ import SortSelect from '@/components/SortSelect'
 import Pagination from '@/components/Pagination'
 import ProductCardSkeleton from '@/components/skeletons/ProductCardSkeleton'
 import { createClient } from '@/lib/supabase/server'
-import { getConfigString } from '@/lib/config'
-
-const ITEMS_PER_PAGE = 12
+import { getConfigString, getConfigNumber } from '@/lib/config'
 
 type SearchParams = Promise<{
   store?: string | string[]
@@ -87,6 +85,7 @@ export default async function HomePage({
     heroStat3Lbl,
     heroGradientStart,
     heroGradientEnd,
+    itemsPerPage,
   ] = await Promise.all([
     getConfigString('hero_badge_text', "🔥 India's #1 Community Deal Hub"),
     getConfigString('hero_headline', 'Discover & Share Craziest Price Drops'),
@@ -102,6 +101,7 @@ export default async function HomePage({
     getConfigString('hero_stat_3_lbl', 'Per Referral'),
     getConfigString('site_hero_gradient_from', 'var(--site-hero-gradient-from, var(--site-primary-color, #6040d1))'),
     getConfigString('site_hero_gradient_to', 'var(--site-hero-gradient-to, var(--site-secondary-color, #9f2089))'),
+    getConfigNumber('items_per_page', 12),
   ])
 
   return (
@@ -208,7 +208,7 @@ export default async function HomePage({
                   </div>
                 }
               >
-                <ProductGrid store={store} category={category} q={q} sort={sort} page={page} />
+                <ProductGrid store={store} category={category} q={q} sort={sort} page={page} itemsPerPage={itemsPerPage} />
               </Suspense>
             </div>
           </div>
@@ -226,12 +226,14 @@ async function ProductGrid({
   q,
   sort = 'newest',
   page = 1,
+  itemsPerPage = 12,
 }: {
   store?: string
   category?: string
   q?: string
   sort?: string
   page?: number
+  itemsPerPage?: number
 }) {
   const supabase = await createClient()
 
@@ -282,11 +284,11 @@ async function ProductGrid({
   }
 
   const totalItems = count ?? products.length
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
 
   // Paginate sliced items for current page
-  const fromIndex = (page - 1) * ITEMS_PER_PAGE
-  const paginatedProducts = products.slice(fromIndex, fromIndex + ITEMS_PER_PAGE)
+  const fromIndex = (page - 1) * itemsPerPage
+  const paginatedProducts = products.slice(fromIndex, fromIndex + itemsPerPage)
 
   if (paginatedProducts.length === 0) {
     return (
@@ -327,7 +329,7 @@ async function ProductGrid({
         currentPage={page}
         totalPages={totalPages}
         totalItems={totalItems}
-        itemsPerPage={ITEMS_PER_PAGE}
+        itemsPerPage={itemsPerPage}
       />
     </div>
   )

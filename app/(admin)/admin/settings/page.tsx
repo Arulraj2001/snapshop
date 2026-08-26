@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 const POSTING_RULES: { label: string; key: string; type: 'number' | 'boolean' | 'text' | 'color' }[] = [
   { label: 'Free Posts Per User', key: 'free_post_limit', type: 'number' },
+  { label: 'Deals Per Page (Pagination)', key: 'items_per_page', type: 'number' },
   { label: 'Platform Fee ₹', key: 'platform_fee_amount', type: 'number' },
   { label: 'Max Posts Per Day', key: 'max_posts_per_day', type: 'number' },
   { label: 'Require Admin Approval', key: 'new_posts_require_approval', type: 'boolean' },
@@ -23,6 +24,7 @@ const REFERRAL_CONFIG: { label: string; key: string; type: 'number' | 'boolean' 
 
 const KEY_LABELS: Record<string, string> = {
   free_post_limit: 'Free Posts Per User',
+  items_per_page: 'Deals Per Page',
   platform_fee_amount: 'Platform Fee',
   max_posts_per_day: 'Max Posts Per Day',
   new_posts_require_approval: 'Require Admin Approval',
