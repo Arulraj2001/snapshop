@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         .from('users')
         .select('id')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       if (!existing) {
         const referralCode = 'SNAP' + nanoid(6).toUpperCase()

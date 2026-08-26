@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { serviceClient } from '@/lib/supabase/service'
 import { getConfigBool, getConfigNumber } from '@/lib/config'
 import PostForm from '@/components/PostForm'
+import { nanoid } from 'nanoid'
 
 export const metadata: Metadata = {
   title: 'snapShop — Post a Deal',
@@ -19,28 +21,49 @@ export default async function PostPage() {
 
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
-  // Parallel fetch: user profile, daily post count, and dynamic platform config
-  const [
-    { data: profile },
-    { count: todayPostCount },
-    freeLimit,
-    platformFee,
-    maxPostsPerDay,
-    requiresApproval,
-  ] = await Promise.all([
-    supabase.from('users').select('*').eq('id', user.id).single(),
-    supabase
-      .from('products')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .gte('created_at', twentyFourHoursAgo),
-    getConfigNumber('free_post_limit'),
-    getConfigNumber('platform_fee_amount'),
-    getConfigNumber('max_posts_per_day'),
-    getConfigBool('new_posts_require_approval'),
-  ])
+  // Use serviceClient to safely fetch user data (bypasses RLS issues on Vercel)
+  let { data: profile } = await serviceClient
+    .from('users')
+    .select('*')
+    .eq('id', user.id)
+    .maybeSingle()
 
-  if (!profile) redirect('/login')
+  // Auto-heal missing profile row
+  if (!profile) {
+    const referralCode = 'SNAP' + nanoid(6).toUpperCase()
+    const { data: newProfile } = await serviceClient
+      .from('users')
+      .upsert(
+        {
+          id: user.id,
+          email: user.email ?? '',
+          name:
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email?.split('@')[0] ||
+            'User',
+          referral_code: referralCode,
+          role: 'user',
+          wallet_balance: 0,
+          post_count: 0,
+          has_paid_platform_fee: false,
+        },
+        { onConflict: 'id' }
+      )
+      .select('*')
+      .single()
+
+    profile = newProfile || {
+      id: user.id,
+      email: user.email ?? '',
+      name: 'User',
+      referral_code: referralCode,
+      role: 'user',
+      wallet_balance: 0,
+      post_count: 0,
+      has_paid_platform_fee: false,
+    }
+  }
 
   // Banned check
   if (profile.is_banned) {
@@ -73,6 +96,25 @@ export default async function PostPage() {
       </div>
     )
   }
+
+  // Parallel fetch: daily post count and dynamic platform config
+  const [
+    { count: todayPostCount },
+    freeLimit,
+    platformFee,
+    maxPostsPerDay,
+    requiresApproval,
+  ] = await Promise.all([
+    serviceClient
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', twentyFourHoursAgo),
+    getConfigNumber('free_post_limit', 10),
+    getConfigNumber('platform_fee_amount', 249),
+    getConfigNumber('max_posts_per_day', 10),
+    getConfigBool('new_posts_require_approval', true),
+  ])
 
   const showPaywall =
     profile.post_count >= freeLimit && !profile.has_paid_platform_fee
