@@ -15,6 +15,13 @@ export default async function AdminMessagesPage({
   searchParams: SearchParams
 }) {
   const { filter = 'all' } = await searchParams
+
+  // Auto mark all unread messages as read when opening the Messages page
+  await serviceClient
+    .from('contact_messages')
+    .update({ status: 'read' })
+    .eq('status', 'unread')
+
   let query = serviceClient
     .from('contact_messages')
     .select('*')
@@ -34,8 +41,6 @@ export default async function AdminMessagesPage({
     )
   }
 
-  const unreadCount = (messages as ContactMessageRow[])?.filter((m) => m.status === 'unread').length ?? 0
-
   return (
     <div className="max-w-5xl flex flex-col gap-6">
       {/* Page Header */}
@@ -46,11 +51,6 @@ export default async function AdminMessagesPage({
             Review user feedback, payout inquiries, and broken deal reports from the Contact page.
           </p>
         </div>
-        {unreadCount > 0 && (
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-extrabold text-white bg-[#6040d1] shadow-xs w-fit">
-            {unreadCount} Unread Message{unreadCount !== 1 ? 's' : ''}
-          </span>
-        )}
       </div>
 
       <MessagesTable

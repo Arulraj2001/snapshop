@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -18,8 +18,10 @@ const NAV_ITEMS = [
 
 function NavContent({
   onNavClick,
+  badges,
 }: {
   onNavClick?: () => void
+  badges: Record<string, number>
 }) {
   const pathname = usePathname()
 
@@ -27,12 +29,12 @@ function NavContent({
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-4 py-5 flex items-center gap-2">
-        <span className="text-lg font-bold" style={{ color: '#6040d1' }}>
+        <span className="text-lg font-bold" style={{ color: 'var(--site-primary-color, #6040d1)' }}>
           snapShop
         </span>
         <span
           className="text-xs font-semibold rounded px-1.5 py-0.5 text-white"
-          style={{ backgroundColor: '#6040d1' }}
+          style={{ backgroundColor: 'var(--site-primary-color, #6040d1)' }}
         >
           Admin
         </span>
@@ -47,18 +49,21 @@ function NavContent({
               ? pathname === '/admin'
               : pathname.startsWith(item.href)
 
+          // Hide badge if this page is currently open/visited
+          const badgeCount = active ? 0 : (badges[item.href] ?? 0)
+
           return (
             <Link
               key={item.href}
               href={item.href}
               id={`admin-nav-${item.label.toLowerCase()}`}
               onClick={onNavClick}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition"
+              className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition group"
               style={{
                 backgroundColor: active
                   ? 'rgba(96,64,209,0.1)'
                   : 'transparent',
-                color: active ? '#6040d1' : '#000',
+                color: active ? 'var(--site-primary-color, #6040d1)' : '#000',
                 fontWeight: active ? 600 : 400,
                 textDecoration: 'none',
               }}
@@ -71,8 +76,27 @@ function NavContent({
                   e.currentTarget.style.backgroundColor = 'transparent'
               }}
             >
-              <span className="text-base leading-none">{item.icon}</span>
-              {item.label}
+              <div className="flex items-center gap-2.5">
+                <span className="text-base leading-none">{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+
+              {/* Notification Badge (Hidden when page is opened) */}
+              {badgeCount > 0 && (
+                <span
+                  className="px-2 py-0.5 text-[11px] font-extrabold text-white rounded-full shadow-2xs leading-none shrink-0"
+                  style={{
+                    backgroundColor:
+                      item.href === '/admin/messages'
+                        ? '#dc2626'
+                        : item.href === '/admin/withdrawals'
+                        ? '#eab308'
+                        : '#6040d1',
+                  }}
+                >
+                  {badgeCount}
+                </span>
+              )}
             </Link>
           )
         })}
@@ -121,6 +145,27 @@ export default function AdminShell({
   adminName: string
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [badges, setBadges] = useState<Record<string, number>>({})
+  const pathname = usePathname()
+
+  const fetchBadges = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/sidebar-badges')
+      if (res.ok) {
+        const data = await res.json()
+        setBadges(data)
+      }
+    } catch {
+      // Ignore background fetch errors
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchBadges()
+    // Poll sidebar badges every 10 seconds for real-time notification updates
+    const timer = setInterval(fetchBadges, 10_000)
+    return () => clearInterval(timer)
+  }, [fetchBadges, pathname])
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f2f3fb' }}>
@@ -129,7 +174,7 @@ export default function AdminShell({
         className="hidden md:flex flex-col fixed top-0 left-0 h-full w-56 border-r"
         style={{ backgroundColor: '#ffffff', borderColor: '#d7d5dc', zIndex: 40 }}
       >
-        <NavContent />
+        <NavContent badges={badges} />
       </aside>
 
       {/* ── Mobile top bar ───────────────────────────────────────────────── */}
@@ -138,12 +183,12 @@ export default function AdminShell({
         style={{ backgroundColor: '#ffffff', borderColor: '#d7d5dc' }}
       >
         <div className="flex items-center gap-2">
-          <span className="text-base font-bold" style={{ color: '#6040d1' }}>
+          <span className="text-base font-bold" style={{ color: 'var(--site-primary-color, #6040d1)' }}>
             snapShop
           </span>
           <span
             className="text-xs font-semibold rounded px-1.5 py-0.5 text-white"
-            style={{ backgroundColor: '#6040d1' }}
+            style={{ backgroundColor: 'var(--site-primary-color, #6040d1)' }}
           >
             Admin
           </span>
@@ -185,7 +230,7 @@ export default function AdminShell({
             >
               ✕
             </button>
-            <NavContent onNavClick={() => setDrawerOpen(false)} />
+            <NavContent onNavClick={() => setDrawerOpen(false)} badges={badges} />
           </aside>
         </>
       )}
@@ -203,7 +248,7 @@ export default function AdminShell({
               className="text-xs font-semibold rounded-full px-2.5 py-1"
               style={{
                 backgroundColor: 'rgba(96,64,209,0.1)',
-                color: '#6040d1',
+                color: 'var(--site-primary-color, #6040d1)',
               }}
             >
               {adminName}
