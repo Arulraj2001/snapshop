@@ -128,7 +128,7 @@ function ApproveModal({
             onClick={handleConfirm}
             disabled={loading}
             className="flex-1 py-2 rounded-lg text-white text-sm font-semibold cursor-pointer disabled:opacity-60"
-            style={{ backgroundColor: '#6040d1' }}>
+            style={{ backgroundColor: 'var(--site-primary-color, #6040d1)' }}>
             {loading ? 'Processing…' : 'Confirm & Mark Approved'}
           </button>
           <button
@@ -269,9 +269,9 @@ export default function WithdrawalsTable({
               onClick={() => router.push(`/admin/withdrawals?status=${tab}`)}
               className="px-4 py-1.5 rounded-full text-sm font-medium capitalize cursor-pointer border"
               style={{
-                backgroundColor: active ? '#6040d1' : '#fff',
+                backgroundColor: active ? 'var(--site-primary-color, #6040d1)' : '#fff',
                 color: active ? '#fff' : '#000',
-                borderColor: active ? '#6040d1' : '#d7d5dc',
+                borderColor: active ? 'var(--site-primary-color, #6040d1)' : '#d7d5dc',
               }}>
               {tab}
             </button>
@@ -287,7 +287,7 @@ export default function WithdrawalsTable({
           <p className="text-sm" style={{ color: '#000' }}>
             Total pending payout
           </p>
-          <p className="text-sm font-bold" style={{ color: '#6040d1' }}>
+          <p className="text-sm font-bold" style={{ color: 'var(--site-primary-color, #6040d1)' }}>
             ₹{totalPending.toLocaleString('en-IN')}
           </p>
         </div>
@@ -366,7 +366,7 @@ export default function WithdrawalsTable({
                               onClick={() => setApprovingItem(w)}
                               disabled={busy}
                               className="px-2 py-1 rounded-lg text-xs font-semibold text-white cursor-pointer disabled:opacity-50"
-                              style={{ backgroundColor: '#6040d1' }}>
+                              style={{ backgroundColor: 'var(--site-primary-color, #6040d1)' }}>
                               Approve
                             </button>
                             <button
