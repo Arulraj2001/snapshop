@@ -12,6 +12,7 @@ interface ProductDetailModalProps {
   category?: string
   description?: string | null
   affiliate_link: string
+  canonicalUrl?: string
   onClose: () => void
 }
 
@@ -60,9 +61,11 @@ export default function ProductDetailModal({
   category,
   description,
   affiliate_link,
+  canonicalUrl,
   onClose,
 }: ProductDetailModalProps) {
   const [activeImageIdx, setActiveImageIdx] = useState(0)
+  const [copied, setCopied] = useState(false)
 
   // Handle escape key to close
   useEffect(() => {
@@ -245,17 +248,36 @@ export default function ProductDetailModal({
             </span>
           </div>
 
-          <button
-            onClick={handleBuy}
-            className="flex-1 max-w-xs py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer hover:scale-102"
-            style={{
-              backgroundColor: storeTheme.bg,
-              color: storeTheme.text,
-            }}
-          >
-            <span>Buy on {store}</span>
-            <span>↗</span>
-          </button>
+          {/* Buttons Row: Buy & Share */}
+          <div className="flex gap-2">
+            <button
+              id={`modal-buy-${id}`}
+              onClick={handleBuy}
+              className="flex-1 py-3 px-6 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              style={{ backgroundColor: storeTheme.bg, color: storeTheme.text }}
+            >
+              <span>Buy on {store}</span>
+              <span>↗</span>
+            </button>
+
+            {canonicalUrl && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(canonicalUrl)
+                    setCopied(true)
+                    setTimeout(() => setCopied(false), 2000)
+                  }
+                }}
+                className="px-3 py-3 rounded-xl border text-xs font-bold text-black transition-colors cursor-pointer shrink-0 bg-slate-50 hover:bg-slate-100"
+                style={{ borderColor: '#d7d5dc' }}
+                title="Copy SEO Deal Page Link"
+              >
+                {copied ? 'Copied! ✓' : 'Share 🔗'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

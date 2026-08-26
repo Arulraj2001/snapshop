@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ProductDetailModal from './ProductDetailModal'
+import { slugify } from '@/lib/seo'
 
 interface ProductCardProps {
   id: string
@@ -90,6 +91,9 @@ export default function ProductCard({
     accentBorder: '#6040d1',
   }
 
+  const slug = slugify(title)
+  const canonicalUrl = typeof window !== 'undefined' ? `${window.location.origin}/deals/${id}/${slug}` : `/deals/${id}/${slug}`
+
   function handleBuy(e: React.MouseEvent) {
     e.stopPropagation()
     fetch('/api/clicks', {
@@ -114,6 +118,7 @@ export default function ProductCard({
           category={category}
           description={description}
           affiliate_link={affiliate_link}
+          canonicalUrl={canonicalUrl}
           onClose={() => setShowModal(false)}
         />
       )}
