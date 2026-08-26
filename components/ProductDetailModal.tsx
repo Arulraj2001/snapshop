@@ -195,18 +195,30 @@ export default function ProductDetailModal({
 
           {/* Product Header & Meta */}
           <div className="flex flex-col gap-2 border-b pb-4" style={{ borderColor: '#f2f3fb' }}>
-            {category && (
-              <span className="text-xs font-bold uppercase tracking-wider text-[#6040d1]">
+            {/* Category badge */}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 border text-gray-700" style={{ borderColor: '#d7d5dc' }}>
                 {category}
               </span>
-            )}
-            <h2 className="text-xl sm:text-2xl font-extrabold text-black leading-snug">
+              <span
+                className="text-xs font-bold uppercase tracking-wider"
+                style={{ color: 'var(--site-primary-color, #6040d1)' }}
+              >
+                {store} Deal
+              </span>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-lg sm:text-xl font-extrabold text-black leading-tight">
               {title}
             </h2>
 
-            {/* Pricing Details */}
-            <div className="flex items-baseline gap-3 mt-1">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#6040d1] tabular-nums">
+            {/* Price */}
+            <div className="flex items-baseline gap-2">
+              <span
+                className="text-2xl sm:text-3xl font-extrabold tabular-nums"
+                style={{ color: 'var(--site-primary-color, #6040d1)' }}
+              >
                 ₹{offer_price.toLocaleString('en-IN')}
               </span>
               {mrp && mrp > offer_price && (

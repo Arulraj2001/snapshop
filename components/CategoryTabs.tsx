@@ -69,11 +69,11 @@ export default function CategoryTabs({
             style={
               isActive
                 ? {
-                    backgroundColor: '#6040d1',
+                    backgroundColor: 'var(--site-primary-color, #6040d1)',
                     color: '#ffffff',
-                    border: '1px solid #6040d1',
+                    border: '1px solid var(--site-primary-color, #6040d1)',
                     textDecoration: 'none',
-                    boxShadow: isVertical ? '0 2px 6px rgba(96,64,209,0.25)' : undefined,
+                    boxShadow: isVertical ? '0 2px 6px rgba(0,0,0,0.15)' : undefined,
                   }
                 : {
                     backgroundColor: isVertical ? '#fafafa' : '#ffffff',

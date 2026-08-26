@@ -26,8 +26,8 @@ export default function HeroBanner({
   stat2Lbl = 'Price Drops',
   stat3Val = '₹100 Bonus',
   stat3Lbl = 'Per Referral',
-  gradientStart = '#6040d1',
-  gradientEnd = '#371e94',
+  gradientStart = 'var(--site-hero-gradient-from, var(--site-primary-color, #6040d1))',
+  gradientEnd = 'var(--site-hero-gradient-to, var(--site-secondary-color, #9f2089))',
 }: HeroBannerProps) {
   return (
     <div
@@ -67,16 +67,16 @@ export default function HeroBanner({
           <Link
             href="/post"
             className="rounded-xl px-5 py-2.5 text-sm font-bold bg-white transition-all shadow-md hover:scale-105"
-            style={{ color: gradientStart, textDecoration: 'none' }}
+            style={{ color: 'var(--site-primary-color, #6040d1)', textDecoration: 'none' }}
           >
             + Post a Deal
           </Link>
           <Link
-            href="/dashboard"
+            href="/refer-and-earn"
             className="rounded-xl px-5 py-2.5 text-sm font-semibold text-white border border-white/30 hover:bg-white/10 transition-all"
             style={{ textDecoration: 'none' }}
           >
-            Refer &amp; Earn Rewards
+            Refer &amp; Earn Rewards 🎁
           </Link>
         </div>
 

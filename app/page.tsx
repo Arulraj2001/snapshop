@@ -88,8 +88,8 @@ export default async function HomePage({
     getConfigString('hero_stat_2_lbl', 'Price Drops'),
     getConfigString('hero_stat_3_val', '₹100 Bonus'),
     getConfigString('hero_stat_3_lbl', 'Per Referral'),
-    getConfigString('site_hero_gradient_start', '#6040d1'),
-    getConfigString('site_hero_gradient_end', '#371e94'),
+    getConfigString('site_hero_gradient_from', 'var(--site-hero-gradient-from, var(--site-primary-color, #6040d1))'),
+    getConfigString('site_hero_gradient_to', 'var(--site-hero-gradient-to, var(--site-secondary-color, #9f2089))'),
   ])
 
   return (

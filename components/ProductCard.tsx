@@ -212,7 +212,10 @@ export default function ProductCard({
           {/* Pricing Row (Left: Price, Right: More Button) */}
           <div className="flex items-center justify-between gap-2 mt-1">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-base font-extrabold text-[#6040d1] tabular-nums">
+              <span
+                className="text-base font-extrabold tabular-nums"
+                style={{ color: 'var(--site-primary-color, #6040d1)' }}
+              >
                 ₹{offer_price.toLocaleString('en-IN')}
               </span>
               {mrp && mrp > offer_price && (
@@ -228,7 +231,11 @@ export default function ProductCard({
                 e.stopPropagation()
                 setShowModal(true)
               }}
-              className="px-2.5 py-1 rounded-lg text-xs font-bold text-[#6040d1] bg-[#6040d1]/10 hover:bg-[#6040d1]/20 transition-colors cursor-pointer shrink-0"
+              className="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0"
+              style={{
+                color: 'var(--site-primary-color, #6040d1)',
+                backgroundColor: 'rgba(96,64,209,0.08)',
+              }}
             >
               More ℹ️
             </button>
