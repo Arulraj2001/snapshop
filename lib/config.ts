@@ -6,7 +6,8 @@ export const configCache: Record<string, { value: string; ts: number }> = {}
 const CACHE_TTL = 60_000 // 1 minute
 
 /**
- * Fetch a platform_config value by key using serviceClient (bypasses RLS).
+ * Fetch a platform_config value by key.
+ * Uses serviceClient on server, or client-side supabase on browser.
  * Results are cached in memory for CACHE_TTL ms.
  */
 export async function getConfig(key: string): Promise<string> {
@@ -17,13 +18,26 @@ export async function getConfig(key: string): Promise<string> {
   }
 
   try {
-    const { data } = await serviceClient
-      .from('platform_config')
-      .select('value')
-      .eq('key', key)
-      .maybeSingle()
+    let value = ''
 
-    const value = data?.value ?? ''
+    if (typeof window !== 'undefined') {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data } = await supabase
+        .from('platform_config')
+        .select('value')
+        .eq('key', key)
+        .maybeSingle()
+      value = data?.value ?? ''
+    } else {
+      const { data } = await serviceClient
+        .from('platform_config')
+        .select('value')
+        .eq('key', key)
+        .maybeSingle()
+      value = data?.value ?? ''
+    }
+
     configCache[key] = { value, ts: now }
     return value
   } catch {
@@ -88,7 +102,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     heroGradientTo,
   ] = await Promise.all([
     getConfigString('site_name', 'snapShop'),
-    getConfigString('site_tagline', 'Best Affiliate Deals & Cashback Community'),
+    getConfigString('site_tagline', "India's premier community deal platform. Discover verified price drops on Amazon, Flipkart, Myntra & Meesho and earn rewards for sharing."),
     getConfigString('site_logo_emoji', '🛍️'),
     getConfigString('contact_email', 'support@snapshop.com'),
     getConfigString('copyright_text', '© 2026 snapShop. All rights reserved.'),

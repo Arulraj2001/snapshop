@@ -1,9 +1,20 @@
 import Link from 'next/link'
-import { getSiteConfig } from '@/lib/config'
 
-export default async function Footer() {
-  const siteConfig = await getSiteConfig()
+interface FooterProps {
+  siteName?: string
+  siteTagline?: string
+  siteLogoEmoji?: string
+  copyrightText?: string
+  primaryColor?: string
+}
 
+export default function Footer({
+  siteName = 'snapShop',
+  siteTagline = "India's premier community deal platform. Discover verified price drops on Amazon, Flipkart, Myntra & Meesho and earn rewards for sharing.",
+  siteLogoEmoji = '🛍️',
+  copyrightText = '© 2026 snapShop. All rights reserved.',
+  primaryColor = 'var(--site-primary-color, #6040d1)',
+}: FooterProps) {
   return (
     <footer
       className="border-t pt-12 pb-8 px-4 text-base mt-16"
@@ -18,12 +29,12 @@ export default async function Footer() {
           <Link
             href="/"
             className="text-2xl font-bold flex items-center gap-2"
-            style={{ color: siteConfig.primaryColor, textDecoration: 'none' }}
+            style={{ color: primaryColor, textDecoration: 'none' }}
           >
-            <span>{siteConfig.siteLogoEmoji}</span> {siteConfig.siteName}
+            <span>{siteLogoEmoji}</span> {siteName}
           </Link>
           <p className="text-sm leading-relaxed" style={{ color: '#bab0c1' }}>
-            {siteConfig.siteTagline}
+            {siteTagline}
           </p>
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#16a34a] bg-green-50 px-3 py-1 rounded-full w-fit border border-green-200">
             <span>🛡️</span> Verified Affiliate Partner
@@ -78,7 +89,7 @@ export default async function Footer() {
         className="max-w-6xl mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm"
         style={{ color: '#bab0c1' }}
       >
-        <p>{siteConfig.copyrightText}</p>
+        <p>{copyrightText}</p>
         <p className="flex items-center gap-4">
           <span>Amazon Associate</span>
           <span>·</span>
