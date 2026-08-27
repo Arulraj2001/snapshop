@@ -53,7 +53,9 @@ export async function POST(request: Request) {
         user_metadata: { full_name: cleanName },
       })
 
-    if (adminAuthError || !adminAuthData.user) {
+    let createdUser = adminAuthData?.user ?? null
+
+    if (adminAuthError || !createdUser) {
       // Fallback to standard signUp if admin API fails
       const supabase = await createClient()
       const { data: fallbackData, error: fallbackError } = await supabase.auth.signUp({
@@ -68,9 +70,10 @@ export async function POST(request: Request) {
           { status: 400 }
         )
       }
+      createdUser = fallbackData.user
     }
 
-    const user = adminAuthData?.user!
+    const user = createdUser
     const referralCode = 'SNAP' + nanoid(6).toUpperCase()
 
     // 3. Upsert profile row in public.users

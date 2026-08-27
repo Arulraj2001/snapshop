@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/adminAuth'
 import { serviceClient } from '@/lib/supabase/service'
 import { getConfigNumber } from '@/lib/config'
+import { creditReferralIfEligible } from '@/app/api/payments/verify/route'
 
 export async function PATCH(
   _request: Request,
@@ -30,47 +31,26 @@ export async function PATCH(
       .update({ status: 'success' })
       .eq('id', id)
 
-    // Step 2: Unlock platform posting for the user
-    await serviceClient
+    // Step 2: Unlock platform posting for the user + credit welcome bonus cashback
+    const welcomeBonus = await getConfigNumber('welcome_bonus_amount', 50)
+    const { data: payingUser } = await serviceClient
       .from('users')
-      .update({ has_paid_platform_fee: true })
+      .select('wallet_balance')
       .eq('id', payment.user_id)
-
-    // Step 3: Process pending referral commission (mirror webhook logic)
-    const { data: referral } = await serviceClient
-      .from('referrals')
-      .select('*')
-      .eq('referred_id', payment.user_id)
-      .eq('status', 'pending')
       .single()
 
-    if (referral) {
-      const commission = await getConfigNumber('referral_commission')
+    const currentBalance = Number(payingUser?.wallet_balance ?? 0)
 
-      await serviceClient
-        .from('referrals')
-        .update({
-          status: 'paid',
-          commission_amount: commission,
-          paid_at: new Date().toISOString(),
-        })
-        .eq('id', referral.id)
+    await serviceClient
+      .from('users')
+      .update({
+        has_paid_platform_fee: true,
+        wallet_balance: currentBalance + welcomeBonus,
+      })
+      .eq('id', payment.user_id)
 
-      if (commission > 0) {
-        const { data: referrer } = await serviceClient
-          .from('users')
-          .select('wallet_balance')
-          .eq('id', referral.referrer_id)
-          .single()
-
-        if (referrer) {
-          await serviceClient
-            .from('users')
-            .update({ wallet_balance: Number(referrer.wallet_balance) + commission })
-            .eq('id', referral.referrer_id)
-        }
-      }
-    }
+    // Step 3: Process pending referral commission (idempotent)
+    await creditReferralIfEligible(payment.user_id)
 
     return Response.json({ success: true })
   } catch (res) {
